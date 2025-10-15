@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv_py310/
+venv/
+env/
+ENV/
+
+# Apache Flink
+flink/
+env.sh
+
+# Dados grandes
+data/real/*.csv
+data/real/*.parquet
+data/output/
+
+# Logs
+*.log
+flink-*.log
+nohup.out
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporários
+*.tmp
+*.bak
+.cache/
