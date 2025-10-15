@@ -21,6 +21,26 @@ import os
 import sys
 
 
+def add_csv_header(output_dir: str, headers: list):
+    """Adiciona cabeçalho ao CSV gerado pelo Flink."""
+    import glob
+    
+    csv_files = glob.glob(f"{output_dir}/*.csv") + glob.glob(f"{output_dir}/part-*")
+    
+    if not csv_files:
+        return
+    
+    for csv_file in csv_files:
+        # Ler conteúdo existente
+        with open(csv_file, 'r') as f:
+            content = f.read()
+        
+        # Escrever header + conteúdo
+        with open(csv_file, 'w') as f:
+            f.write(','.join(headers) + '\n')
+            f.write(content)
+
+
 def download_and_convert_dataset(parquet_path: str, csv_path: str):
     """Baixa dataset Parquet e converte para CSV se necessário."""
     
@@ -108,7 +128,7 @@ def analysis_1_top_routes(t_env: TableEnvironment, output_dir: str):
     print("\n📊 Análise 1: Top 10 Rotas Mais Populares")
     print("=" * 60)
     
-    # Criar sink
+    # Criar sink com headers
     output_path = os.path.abspath(f"{output_dir}/top_routes")
     t_env.execute_sql(f"""
         CREATE TABLE top_routes_sink (
@@ -118,7 +138,9 @@ def analysis_1_top_routes(t_env: TableEnvironment, output_dir: str):
         ) WITH (
             'connector' = 'filesystem',
             'path' = 'file://{output_path}',
-            'format' = 'csv'
+            'format' = 'csv',
+            'csv.field-delimiter' = ',',
+            'csv.disable-quote-character' = 'false'
         )
     """)
     
@@ -138,6 +160,10 @@ def analysis_1_top_routes(t_env: TableEnvironment, output_dir: str):
     
     # Executar
     result.execute_insert('top_routes_sink').wait()
+    
+    # Adicionar header ao CSV
+    add_csv_header(output_path, ['pickup_location', 'dropoff_location', 'trip_count'])
+    
     print(f"✓ Resultados salvos em: {output_path}/")
 
 
@@ -176,6 +202,10 @@ def analysis_2_revenue_by_hour(t_env: TableEnvironment, output_dir: str):
     """)
     
     result.execute_insert('revenue_by_hour_sink').wait()
+    
+    # Adicionar header ao CSV
+    add_csv_header(output_path, ['hour_of_day', 'total_trips', 'total_revenue', 'avg_fare'])
+    
     print(f"✓ Resultados salvos em: {output_path}/")
 
 
@@ -226,6 +256,10 @@ def analysis_3_trips_by_distance(t_env: TableEnvironment, output_dir: str):
     """)
     
     result.execute_insert('trips_by_distance_sink').wait()
+    
+    # Adicionar header ao CSV
+    add_csv_header(output_path, ['distance_range', 'trip_count', 'avg_fare', 'avg_duration_min'])
+    
     print(f"✓ Resultados salvos em: {output_path}/")
 
 
