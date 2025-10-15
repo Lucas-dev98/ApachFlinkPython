@@ -18,6 +18,7 @@ Análises:
 from pyflink.table import EnvironmentSettings, TableEnvironment
 import argparse
 import os
+import shutil
 import sys
 from progress_tracker import ProgressTracker
 
@@ -320,6 +321,25 @@ def main():
         print("=" * 60)
     
     try:
+        # Limpar resultados anteriores
+        if tracker:
+            tracker.start_phase("Limpeza", "Removendo resultados anteriores...")
+        else:
+            print("\n🧹 Limpando resultados anteriores...")
+            
+        import shutil
+        if os.path.exists(args.output):
+            shutil.rmtree(args.output)
+            if tracker:
+                tracker.log_success(f"Diretório limpo: {args.output}")
+            else:
+                print(f"✓ Diretório limpo: {args.output}")
+        else:
+            if tracker:
+                tracker.log_info("Nenhum resultado anterior para limpar")
+            else:
+                print("✓ Nenhum resultado anterior para limpar")
+        
         # Download/conversão se necessário
         if args.download or not os.path.exists(args.data):
             parquet_path = 'data/real/nyc_taxi_2023_01.parquet'
@@ -348,11 +368,21 @@ def main():
         # Criar tabela
         create_taxi_table(t_env, args.data)
         
+        # Contar registros no arquivo
+        records_count = 0
+        if os.path.exists(args.data):
+            with open(args.data, 'r') as f:
+                records_count = sum(1 for _ in f) - 1  # -1 para excluir header
+        
         if tracker:
             tracker.log_success("Tabela 'taxi_trips' criada")
+            tracker.log_info(f"Dataset: {records_count:,} registros")
+            # Atualizar estatísticas
+            tracker.stats['records_processed'] = records_count
             tracker.complete_phase()
         else:
             print("✓ Tabela 'taxi_trips' criada")
+            print(f"  Dataset: {records_count:,} registros")
         
         # Executar análises
         if tracker:

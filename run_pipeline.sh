@@ -37,6 +37,25 @@ info() {
     echo -e "${CYAN}ℹ $1${NC}"
 }
 
+# 0. Limpar resultados anteriores
+step "0. Limpando resultados anteriores..."
+if [ -d "data/output/nyc_taxi_analysis" ]; then
+    rm -rf data/output/nyc_taxi_analysis
+    success "Resultados anteriores removidos"
+else
+    info "Nenhum resultado anterior para limpar"
+fi
+
+if [ -f "data/output/dashboard.html" ]; then
+    rm -f data/output/dashboard.html
+    success "Dashboard anterior removido"
+fi
+
+if [ -f "data/output/nyc_taxi_analysis/execution_report.json" ]; then
+    rm -f data/output/nyc_taxi_analysis/execution_report.json
+    success "Relatório anterior removido"
+fi
+
 # 1. Ativar ambiente Python
 step "1. Ativando ambiente Python..."
 export PYENV_ROOT="$HOME/.pyenv"

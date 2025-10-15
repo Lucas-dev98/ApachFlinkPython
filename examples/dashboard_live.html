@@ -292,27 +292,34 @@
         // Função para buscar status
         async function fetchStatus() {
             try {
+                console.log('[DEBUG] Buscando status...');
                 const response = await fetch(`${API_BASE}/api/status`);
+                console.log('[DEBUG] Status response:', response.status);
                 const data = await response.json();
+                console.log('[DEBUG] Status data:', data);
                 updateStatus(data);
             } catch (error) {
-                console.error('Erro ao buscar status:', error);
+                console.error('❌ Erro ao buscar status:', error);
             }
         }
         
         // Função para buscar resultados
         async function fetchResults() {
             try {
+                console.log('[DEBUG] Buscando resultados...');
                 const response = await fetch(`${API_BASE}/api/results`);
+                console.log('[DEBUG] Results response:', response.status);
                 const data = await response.json();
+                console.log('[DEBUG] Results data:', data);
                 updateResults(data);
             } catch (error) {
-                console.error('Erro ao buscar resultados:', error);
+                console.error('❌ Erro ao buscar resultados:', error);
             }
         }
         
         // Atualizar status
         function updateStatus(data) {
+            console.log('[DEBUG] Atualizando status com:', data);
             const stats = data.statistics || {};
             
             document.getElementById('records-count').textContent = 
@@ -341,10 +348,12 @@
             
             document.getElementById('last-update').textContent = 
                 new Date().toLocaleTimeString('pt-BR');
+            console.log('[DEBUG] Status atualizado!');
         }
         
         // Atualizar resultados
         function updateResults(data) {
+            console.log('[DEBUG] Atualizando resultados com:', data);
             if (data.top_routes && data.top_routes.length > 0) {
                 renderTopRoutes(data.top_routes);
             }
@@ -477,6 +486,9 @@
         
         // Atualização periódica
         function startAutoUpdate() {
+            console.log('🚀 Iniciando atualização automática...');
+            console.log('   Intervalo:', UPDATE_INTERVAL, 'ms');
+            console.log('   API Base:', API_BASE || 'localhost (mesma origem)');
             fetchStatus();
             fetchResults();
             setInterval(() => {
@@ -486,7 +498,10 @@
         }
         
         // Iniciar quando a página carregar
-        window.addEventListener('load', startAutoUpdate);
+        window.addEventListener('load', () => {
+            console.log('✅ Página carregada! Iniciando dashboard...');
+            startAutoUpdate();
+        });
     </script>
 </body>
 </html>

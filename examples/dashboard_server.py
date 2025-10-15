@@ -19,9 +19,20 @@ class DashboardHandler(SimpleHTTPRequestHandler):
     
     def do_GET(self):
         """Handle GET requests"""
-        if self.path == '/':
-            self.path = '/dashboard_live.html'
-            return SimpleHTTPRequestHandler.do_GET(self)
+        if self.path == '/' or self.path == '/index.html':
+            # Servir dashboard_live.html
+            dashboard_path = os.path.join(os.path.dirname(__file__), 'dashboard_live.html')
+            try:
+                with open(dashboard_path, 'rb') as f:
+                    content = f.read()
+                self.send_response(200)
+                self.send_header('Content-type', 'text/html; charset=utf-8')
+                self.end_headers()
+                self.wfile.write(content)
+                return
+            except FileNotFoundError:
+                self.send_error(404, f"Dashboard not found at {dashboard_path}")
+                return
         elif self.path == '/api/status':
             self.send_json_response(self.get_pipeline_status())
         elif self.path == '/api/results':
