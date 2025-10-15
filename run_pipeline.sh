@@ -4,6 +4,7 @@ set -euo pipefail
 # Script de Automação Completa - PyFlink Big Data Pipeline
 # =========================================================
 # Este script automatiza todo o processo de setup e execução do pipeline PyFlink
+# Agora com interface de progresso e dashboard HTML!
 
 echo "=========================================="
 echo "🚀 Automação PyFlink Big Data Pipeline"
@@ -17,6 +18,7 @@ cd "$PROJECT_ROOT"
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
 step() {
@@ -29,6 +31,10 @@ success() {
 
 warn() {
     echo -e "${YELLOW}⚠ $1${NC}"
+}
+
+info() {
+    echo -e "${CYAN}ℹ $1${NC}"
 }
 
 # 1. Ativar ambiente Python
@@ -91,23 +97,29 @@ else
 fi
 
 # 6. Executar pipeline NYC Taxi
-step "6. Executando pipeline PyFlink com dataset real..."
+step "6. Executando pipeline PyFlink com interface de progresso..."
 echo ""
-python examples/pyflink_nyc_taxi.py --download --data data/real/nyc_taxi_2023_01.parquet --output data/output/nyc_taxi_analysis
+python examples/pyflink_nyc_taxi_csv.py
 
-# 7. Mostrar resultados
-step "7. Resumo dos Resultados"
+# 7. Gerar Dashboard HTML
+step "7. Gerando Dashboard HTML interativo..."
+echo ""
+python examples/generate_dashboard.py data/output/nyc_taxi_analysis
+DASHBOARD_PATH="$(pwd)/data/output/dashboard.html"
+
+# 8. Mostrar resultados
+step "8. Resumo dos Resultados"
 echo ""
 echo "=========================================="
 echo "📊 Análises Geradas:"
 echo "=========================================="
 
 if [ -d "data/output/nyc_taxi_analysis" ]; then
-    for analysis in top_routes revenue_by_hour distance_by_payment tip_analysis; do
+    for analysis in top_routes revenue_by_hour trips_by_distance; do
         if [ -d "data/output/nyc_taxi_analysis/$analysis" ]; then
             echo ""
             echo "--- $analysis ---"
-            find "data/output/nyc_taxi_analysis/$analysis" -type f -name "*.csv" | head -1 | xargs head -5 2>/dev/null || echo "Arquivo vazio ou não encontrado"
+            find "data/output/nyc_taxi_analysis/$analysis" -type f \( -name "*.csv" -o -name "part-*" \) | head -1 | xargs head -5 2>/dev/null || echo "Arquivo não encontrado"
         fi
     done
 fi
@@ -116,6 +128,11 @@ echo ""
 echo "=========================================="
 echo "✅ Pipeline concluído com sucesso!"
 echo "=========================================="
+echo ""
+info "📊 Dashboard HTML disponível em:"
+info "   file://$DASHBOARD_PATH"
+echo ""
+info "💡 Dica: Abra o dashboard no seu navegador para visualizar os resultados!"
 echo ""
 echo "📁 Resultados completos em: data/output/nyc_taxi_analysis/"
 echo "🌐 Flink WebUI: http://localhost:8081"
