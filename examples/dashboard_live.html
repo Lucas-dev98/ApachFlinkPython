@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NYC Taxi Analysis - Dashboard em Tempo Real</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .live-indicator {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .live-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #4caf50;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        .live-text {
+            color: #4caf50;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        
+        h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 10px 0;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .analysis-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .analysis-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        tr:hover {
+            background: #f5f5f5;
+        }
+        
+        .chart-bar {
+            height: 30px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        
+        .chart-bar:hover {
+            transform: scaleX(1.05);
+        }
+        
+        .timestamp {
+            text-align: center;
+            color: white;
+            margin-top: 20px;
+            font-size: 0.9em;
+        }
+        
+        .icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        
+        .success {
+            color: #4caf50;
+        }
+        
+        .warning {
+            color: #ff9800;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .status-message {
+            background: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 5px solid #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="live-indicator">
+                <div class="live-dot"></div>
+                <span class="live-text">ATUALIZAÇÃO AUTOMÁTICA</span>
+            </div>
+            <h1>🚕 NYC Taxi Analysis Dashboard</h1>
+            <p class="subtitle">Análise de dados do NYC Yellow Taxi - Janeiro 2023 (Tempo Real)</p>
+        </header>
+        
+        <div id="status-container"></div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="icon">📊</div>
+                <div class="stat-label">Registros Processados</div>
+                <div class="stat-value" id="records-count">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon">✅</div>
+                <div class="stat-label">Análises Concluídas</div>
+                <div class="stat-value" id="analyses-count">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon">⏱️</div>
+                <div class="stat-label">Tempo de Execução</div>
+                <div class="stat-value" id="execution-time">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon" id="status-icon">⏳</div>
+                <div class="stat-label">Status</div>
+                <div class="stat-value" id="status-text">Aguardando</div>
+            </div>
+        </div>
+        
+        <!-- Análise 1: Top Rotas -->
+        <div class="analysis-section">
+            <h2>📍 Top 10 Rotas Mais Populares</h2>
+            <p>As rotas com maior volume de viagens entre pontos de embarque e desembarque.</p>
+            <div id="top-routes-container">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Aguardando dados do pipeline...</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Análise 2: Receita por Hora -->
+        <div class="analysis-section">
+            <h2>💰 Receita por Hora do Dia</h2>
+            <p>Distribuição de receita e viagens ao longo das 24 horas.</p>
+            <div id="revenue-container">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Aguardando dados do pipeline...</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Análise 3: Viagens por Distância -->
+        <div class="analysis-section">
+            <h2>📏 Distribuição por Distância</h2>
+            <p>Análise de viagens agrupadas por faixas de distância.</p>
+            <div id="distance-container">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Aguardando dados do pipeline...</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="timestamp">
+            <p>Última atualização: <span id="last-update">-</span></p>
+            <p>Powered by Apache Flink + PyFlink + Real-time Dashboard</p>
+        </div>
+    </div>
+
+    <script>
+        // Configuração
+        const API_BASE = '';
+        const UPDATE_INTERVAL = 2000; // 2 segundos
+        
+        // Função para buscar status
+        async function fetchStatus() {
+            try {
+                const response = await fetch(`${API_BASE}/api/status`);
+                const data = await response.json();
+                updateStatus(data);
+            } catch (error) {
+                console.error('Erro ao buscar status:', error);
+            }
+        }
+        
+        // Função para buscar resultados
+        async function fetchResults() {
+            try {
+                const response = await fetch(`${API_BASE}/api/results`);
+                const data = await response.json();
+                updateResults(data);
+            } catch (error) {
+                console.error('Erro ao buscar resultados:', error);
+            }
+        }
+        
+        // Atualizar status
+        function updateStatus(data) {
+            const stats = data.statistics || {};
+            
+            document.getElementById('records-count').textContent = 
+                (stats.records_processed || 0).toLocaleString();
+            document.getElementById('analyses-count').textContent = 
+                stats.analyses_completed || 0;
+            document.getElementById('execution-time').textContent = 
+                data.execution_time_seconds ? `${data.execution_time_seconds.toFixed(1)}s` : '-';
+            
+            const statusIcon = document.getElementById('status-icon');
+            const statusText = document.getElementById('status-text');
+            
+            if (data.success) {
+                statusIcon.textContent = '✓';
+                statusText.textContent = 'Sucesso';
+                statusText.className = 'stat-value success';
+            } else if (data.status === 'waiting') {
+                statusIcon.textContent = '⏳';
+                statusText.textContent = 'Aguardando';
+                statusText.className = 'stat-value';
+            } else {
+                statusIcon.textContent = '⚠';
+                statusText.textContent = 'Em execução';
+                statusText.className = 'stat-value warning';
+            }
+            
+            document.getElementById('last-update').textContent = 
+                new Date().toLocaleTimeString('pt-BR');
+        }
+        
+        // Atualizar resultados
+        function updateResults(data) {
+            if (data.top_routes && data.top_routes.length > 0) {
+                renderTopRoutes(data.top_routes);
+            }
+            if (data.revenue_by_hour && data.revenue_by_hour.length > 0) {
+                renderRevenue(data.revenue_by_hour);
+            }
+            if (data.trips_by_distance && data.trips_by_distance.length > 0) {
+                renderDistance(data.trips_by_distance);
+            }
+        }
+        
+        // Renderizar Top Rotas
+        function renderTopRoutes(routes) {
+            const validRoutes = routes.filter(r => r.trip_count && !isNaN(r.trip_count));
+            if (validRoutes.length === 0) return;
+            
+            const maxTrips = Math.max(...validRoutes.map(r => parseInt(r.trip_count)));
+            
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Local Embarque</th>
+                            <th>Local Desembarque</th>
+                            <th>Viagens</th>
+                            <th>Visualização</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            validRoutes.slice(0, 10).forEach((route, idx) => {
+                const tripCount = parseInt(route.trip_count);
+                const barWidth = (tripCount / maxTrips) * 100;
+                html += `
+                    <tr>
+                        <td><strong>${idx + 1}</strong></td>
+                        <td>Zona ${route.pickup_location}</td>
+                        <td>Zona ${route.dropoff_location}</td>
+                        <td><strong>${tripCount.toLocaleString()}</strong></td>
+                        <td><div class="chart-bar" style="width: ${barWidth}%"></div></td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table>';
+            document.getElementById('top-routes-container').innerHTML = html;
+        }
+        
+        // Renderizar Receita
+        function renderRevenue(revenue) {
+            const validRevenue = revenue.filter(r => r.hour_of_day && r.total_revenue);
+            if (validRevenue.length === 0) return;
+            
+            const maxRevenue = Math.max(...validRevenue.map(r => parseFloat(r.total_revenue)));
+            
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Hora</th>
+                            <th>Total Viagens</th>
+                            <th>Receita Total</th>
+                            <th>Tarifa Média</th>
+                            <th>Volume</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            validRevenue.sort((a, b) => parseInt(a.hour_of_day) - parseInt(b.hour_of_day));
+            
+            validRevenue.forEach(rev => {
+                const totalRevenue = parseFloat(rev.total_revenue);
+                const barWidth = (totalRevenue / maxRevenue) * 100;
+                html += `
+                    <tr>
+                        <td><strong>${rev.hour_of_day}:00</strong></td>
+                        <td>${parseInt(rev.total_trips).toLocaleString()}</td>
+                        <td>$${totalRevenue.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+                        <td>$${parseFloat(rev.avg_fare).toFixed(2)}</td>
+                        <td><div class="chart-bar" style="width: ${barWidth}%"></div></td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table>';
+            document.getElementById('revenue-container').innerHTML = html;
+        }
+        
+        // Renderizar Distância
+        function renderDistance(distance) {
+            const validDistance = distance.filter(d => d.distance_range && d.trip_count);
+            if (validDistance.length === 0) return;
+            
+            const totalTrips = validDistance.reduce((sum, d) => sum + parseInt(d.trip_count), 0);
+            
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Faixa de Distância</th>
+                            <th>Viagens</th>
+                            <th>Tarifa Média</th>
+                            <th>Duração Média (min)</th>
+                            <th>Proporção</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            validDistance.forEach(dist => {
+                const tripCount = parseInt(dist.trip_count);
+                const percentage = (tripCount / totalTrips) * 100;
+                html += `
+                    <tr>
+                        <td><strong>${dist.distance_range}</strong></td>
+                        <td>${tripCount.toLocaleString()}</td>
+                        <td>$${parseFloat(dist.avg_fare).toFixed(2)}</td>
+                        <td>${parseFloat(dist.avg_duration_min).toFixed(1)} min</td>
+                        <td><div class="chart-bar" style="width: ${percentage}%"></div></td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table>';
+            document.getElementById('distance-container').innerHTML = html;
+        }
+        
+        // Atualização periódica
+        function startAutoUpdate() {
+            fetchStatus();
+            fetchResults();
+            setInterval(() => {
+                fetchStatus();
+                fetchResults();
+            }, UPDATE_INTERVAL);
+        }
+        
+        // Iniciar quando a página carregar
+        window.addEventListener('load', startAutoUpdate);
+    </script>
+</body>
+</html>
