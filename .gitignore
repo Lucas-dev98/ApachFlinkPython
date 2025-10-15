@@ -23,12 +23,13 @@ data/output/
 flink-*.log
 nohup.out
 
-# IDEs
+# IDEs e Editores
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
+.code-workspace
 
 # OS
 .DS_Store
