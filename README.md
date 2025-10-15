@@ -1,240 +1,477 @@
-# Apache Flink + PyFlink - Big Data Pipeline# apacheFlink — ambiente local de desenvolvimento
+# Apache Flink + PyFlink - Big Data Pipeline# Apache Flink + PyFlink - Big Data Pipeline# apacheFlink — ambiente local de desenvolvimento
 
 
 
-Projeto completo de processamento de Big Data usando **Apache Flink** e **PyFlink** com dataset real (NYC Taxi Trip Records).Este diretório contém scripts para configurar um ambiente local de desenvolvimento com Apache Flink (binário).
+Projeto completo de processamento de Big Data usando **Apache Flink** e **PyFlink** com dataset real (NYC Taxi Trip Records).
 
 
 
-## 📋 RequisitosArquivos principais:
+## 📋 RequisitosProjeto completo de processamento de Big Data usando **Apache Flink** e **PyFlink** com dataset real (NYC Taxi Trip Records).Este diretório contém scripts para configurar um ambiente local de desenvolvimento com Apache Flink (binário).
 
 
 
-- **Java 11+** (JDK instalado)- `setup.sh` — baixa e extrai a distribuição binária do Flink (padrão: 1.18.1). Use `--set-env` para adicionar variáveis ao `~/.bashrc`.
+- **Java 11+** (JDK instalado)
 
-- **Python 3.10** (via pyenv)- `start-flink.sh` — inicia um cluster Flink local (jobmanager + taskmanager).
+- **Python 3.10** (via pyenv)
 
-- **Linux/macOS** (testado em Ubuntu)- `stop-flink.sh` — para o cluster local.
+- **Linux/macOS** (testado em Ubuntu)## 📋 RequisitosArquivos principais:
 
 
+
+## 🚀 Início Rápido
+
+
+
+### 1. Configurar Ambiente- **Java 11+** (JDK instalado)- `setup.sh` — baixa e extrai a distribuição binária do Flink (padrão: 1.18.1). Use `--set-env` para adicionar variáveis ao `~/.bashrc`.
+
+
+
+```bash- **Python 3.10** (via pyenv)- `start-flink.sh` — inicia um cluster Flink local (jobmanager + taskmanager).
+
+# Executar setup (baixa Flink e cria env.sh)
+
+./setup.sh- **Linux/macOS** (testado em Ubuntu)- `stop-flink.sh` — para o cluster local.
+
+
+
+# Carregar variáveis de ambiente
+
+source env.sh
 
 ## 🚀 Início RápidoEnvironment file
 
-----------------
+# Ativar virtualenv Python
+
+source venv_py310/bin/activate----------------
+
+```
 
 ### 1. Configurar Ambiente
+
+### 2. Iniciar Cluster Flink
 
 After running `./setup.sh` the script will generate `env.sh` in the project root. This file contains:
 
 ```bash
 
+./start-flink.sh```bash
+
+```
+
 # Executar setup (baixa Flink e cria env.sh)- `FLINK_HOME` and `PATH` entries pointing to the extracted Flink binary
+
+**Acesse a UI:** http://localhost:8081
 
 ./setup.sh- If a Python virtualenv exists at `./venv`, `env.sh` will add the virtualenv `bin` to `PATH` and set `VIRTUAL_ENV`.
 
+### 3. Executar Pipeline Big Data
 
 
-# Carregar variáveis de ambienteYou can load it manually with:
-
-source env.sh
 
 ```bash
 
-# Ativar virtualenv Pythonsource ./env.sh
-
-source venv_py310/bin/activate```
-
-```
-
-Or run `./setup.sh --set-env` to append a small `source ./env.sh` snippet to your `~/.bashrc`.
-
-### 2. Iniciar Cluster Flink
-
-Virtualenv (Python)
-
-```bash--------------------
-
-./start-flink.sh
-
-```To create a Python virtual environment named `venv` and install PyFlink:
-
-
-
-**Acesse a UI:** http://localhost:8081```bash
-
-python3 -m venv venv
-
-### 3. Executar Pipeline Big Datasource venv/bin/activate
-
-pip install --upgrade pip
-
-```bashpip install apache-flink==1.18.1
-
-# Pipeline NYC Taxi (3 análises de Big Data)```
+# Pipeline NYC Taxi (3 análises de Big Data)# Carregar variáveis de ambienteYou can load it manually with:
 
 python examples/pyflink_nyc_taxi_csv.py --download
 
-```The generated `env.sh` will automatically add `venv/bin` to `PATH` if `venv` exists.
+```source env.sh
 
 
 
-### 4. Parar ClusterExemplos PyFlink
-
-================
-
-```bash
-
-./stop-flink.sh## 1. Exemplo Simples: Top-N Customers
-
-```
-
-`examples/pyflink_topn.py` - demonstra um job batch básico usando Table API.
-
-## 📁 Estrutura do ProjetoLê `data/sample_transactions.csv`, agrega por cliente e retorna top-N.
+### 4. Parar Cluster```bash
 
 
 
-```## 2. Pipeline Big Data: NYC Taxi Dataset (COMPLETO)
+```bash# Ativar virtualenv Pythonsource ./env.sh
+
+./stop-flink.sh
+
+```source venv_py310/bin/activate```
+
+
+
+## 📁 Estrutura do Projeto```
+
+
+
+```Or run `./setup.sh --set-env` to append a small `source ./env.sh` snippet to your `~/.bashrc`.
 
 apacheFlink/
 
-├── env.sh                      # Variáveis de ambiente**🚕 `examples/pyflink_nyc_taxi.py`** - Pipeline completo com dados reais!
+├── env.sh                      # Variáveis de ambiente### 2. Iniciar Cluster Flink
 
 ├── setup.sh                    # Instala Flink
 
-├── start-flink.sh              # Inicia cluster### Dataset
+├── start-flink.sh              # Inicia clusterVirtualenv (Python)
 
-├── stop-flink.sh               # Para cluster- **Fonte**: NYC Taxi and Limousine Commission (TLC)
+├── stop-flink.sh               # Para cluster
 
-├── run_pipeline.sh             # Automação completa- **Tamanho**: ~40MB (1 mês de dados - Janeiro 2023)
-
-│- **Registros**: ~3 milhões de viagens
-
-├── venv_py310/                 # Python 3.10 + PyFlink- **Formato**: Parquet (otimizado para análise)
-
-│- **URL**: https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page
-
-├── flink/                      # Apache Flink 1.18.1
-
-│   └── apache-flink-1.18.1/### Análises Implementadas
+├── run_pipeline.sh             # Automação completa```bash--------------------
 
 │
 
-├── examples/O pipeline executa 4 análises completas:
+├── venv_py310/                 # Python 3.10 + PyFlink./start-flink.sh
 
-│   ├── pyflink_topn.py        # Exemplo Top-N
+│
 
-│   └── pyflink_nyc_taxi_csv.py # Pipeline Big Data1. **Top 10 Rotas Mais Populares**
+├── flink/                      # Apache Flink 1.18.1```To create a Python virtual environment named `venv` and install PyFlink:
 
-│   - Agrega viagens por pickup/dropoff location IDs
+│   └── apache-flink-1.18.1/
 
-└── data/                              - Identifica os pares de localizações mais frequentes
+│
 
-    ├── real/   - Output: `data/output/nyc_taxi_analysis/top_routes/`
+├── examples/
+
+│   ├── pyflink_topn.py        # Exemplo Top-N**Acesse a UI:** http://localhost:8081```bash
+
+│   └── pyflink_nyc_taxi_csv.py # Pipeline Big Data
+
+│python3 -m venv venv
+
+└── data/                           
+
+    ├── real/### 3. Executar Pipeline Big Datasource venv/bin/activate
 
     │   └── nyc_taxi_2023_01_filtered.csv
 
-    └── output/2. **Receita por Hora do Dia**
+    └── output/pip install --upgrade pip
 
-        └── nyc_taxi_analysis/   - Agrega receita total por hora (0-23)
+        └── nyc_taxi_analysis/
 
-            ├── top_routes/   - Calcula média de tarifa por hora
+            ├── top_routes/```bashpip install apache-flink==1.18.1
 
-            ├── revenue_by_hour/   - Útil para entender padrões de demanda
+            ├── revenue_by_hour/
 
-            └── trips_by_distance/   - Output: `data/output/nyc_taxi_analysis/revenue_by_hour/`
+            └── trips_by_distance/# Pipeline NYC Taxi (3 análises de Big Data)```
 
 ```
 
-3. **Distância Média por Tipo de Pagamento**
+python examples/pyflink_nyc_taxi_csv.py --download
 
-## 🚕 Pipeline Big Data: NYC Taxi   - Agrupa por payment_type (1=Cartão, 2=Dinheiro, etc.)
+## 🚕 Pipeline Big Data: NYC Taxi
 
-   - Compara distância e valor médio por tipo
+```The generated `env.sh` will automatically add `venv/bin` to `PATH` if `venv` exists.
 
-**Dataset:** NYC Yellow Taxi Trip Records (Janeiro 2023)   - Output: `data/output/nyc_taxi_analysis/distance_by_payment/`
+**Dataset:** NYC Yellow Taxi Trip Records (Janeiro 2023)
 
 - **Registros:** ~245,000 viagens
 
-- **Tamanho:** ~50MB CSV4. **Análise de Gorjetas**
+- **Tamanho:** ~50MB CSV
 
-- **Fonte:** [NYC TLC Open Data](https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page)   - Segmenta viagens por faixa de valor (0-10, 10-20, 20-30, 30-50, 50+)
-
-   - Calcula gorjeta média e percentual por faixa
-
-### Análises Implementadas   - Apenas pagamentos com cartão (dinheiro não registra gorjeta)
-
-   - Output: `data/output/nyc_taxi_analysis/tip_analysis/`
-
-#### 1️⃣ Top 10 Rotas Mais Populares
-
-Identifica as 10 combinações pickup/dropoff location mais frequentes.### Como Funciona (Arquitetura)
+- **Fonte:** [NYC TLC Open Data](https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page)### 4. Parar ClusterExemplos PyFlink
 
 
 
-#### 2️⃣ Receita por Hora do Dia```
-
-Agrega receita total e média por hora (0-23h).[Dataset Parquet]
-
-      ↓
-
-#### 3️⃣ Distribuição por Distância[PyFlink Table API - Source]
-
-Agrupa viagens por faixas: 0-1mi, 1-3mi, 3-5mi, 5-10mi, 10+mi.      ↓
-
-[SQL Queries - Transformações]
-
-### Executar  - GROUP BY
-
-  - Agregações (COUNT, SUM, AVG)
-
-```bash  - Window Functions (HOUR)
-
-# Com download automático  - Filtros e CASE statements
-
-python examples/pyflink_nyc_taxi_csv.py --download      ↓
-
-[Filesystem Sink - CSV Output]
-
-# Usando dataset existente      ↓
-
-python examples/pyflink_nyc_taxi_csv.py --data data/real/nyc_taxi_2023_01_filtered.csv[Resultados em data/output/]
-
-``````
+### Análises Implementadas================
 
 
 
-### Resultados**Tecnologias utilizadas:**
+#### 1️⃣ Top 10 Rotas Mais Populares```bash
 
-- PyFlink Table API (abstração SQL sobre DataStream)
+Identifica as 10 combinações pickup/dropoff location mais frequentes.
 
-```- Parquet Reader (formato columnar eficiente)
+./stop-flink.sh## 1. Exemplo Simples: Top-N Customers
 
-data/output/nyc_taxi_analysis/- Batch Processing Mode (para dados históricos)
+**Colunas:**
 
-├── top_routes/part-*.csv- CSV Writer (resultados legíveis)
+- `pickup_location` - ID da zona de pickup```
 
-├── revenue_by_hour/part-*.csv
+- `dropoff_location` - ID da zona de dropoff
 
-└── trips_by_distance/part-*.csv### Execução Automatizada
+- `trip_count` - Número de viagens`examples/pyflink_topn.py` - demonstra um job batch básico usando Table API.
+
+
+
+#### 2️⃣ Receita por Hora do Dia## 📁 Estrutura do ProjetoLê `data/sample_transactions.csv`, agrega por cliente e retorna top-N.
+
+Agrega receita total e média por hora (0-23h).
+
+
+
+**Colunas:**
+
+- `hour_of_day` - Hora (0-23)```## 2. Pipeline Big Data: NYC Taxi Dataset (COMPLETO)
+
+- `total_trips` - Total de viagens
+
+- `total_revenue` - Receita totalapacheFlink/
+
+- `avg_fare` - Tarifa média
+
+├── env.sh                      # Variáveis de ambiente**🚕 `examples/pyflink_nyc_taxi.py`** - Pipeline completo com dados reais!
+
+#### 3️⃣ Distribuição por Distância
+
+Agrupa viagens por faixas: 0-1mi, 1-3mi, 3-5mi, 5-10mi, 10+mi.├── setup.sh                    # Instala Flink
+
+
+
+**Colunas:**├── start-flink.sh              # Inicia cluster### Dataset
+
+- `distance_range` - Faixa de distância
+
+- `trip_count` - Total de viagens├── stop-flink.sh               # Para cluster- **Fonte**: NYC Taxi and Limousine Commission (TLC)
+
+- `avg_fare` - Tarifa média
+
+- `avg_duration_min` - Duração estimada (minutos)├── run_pipeline.sh             # Automação completa- **Tamanho**: ~40MB (1 mês de dados - Janeiro 2023)
+
+
+
+### Executar│- **Registros**: ~3 milhões de viagens
+
+
+
+```bash├── venv_py310/                 # Python 3.10 + PyFlink- **Formato**: Parquet (otimizado para análise)
+
+# Com download automático
+
+python examples/pyflink_nyc_taxi_csv.py --download│- **URL**: https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page
+
+
+
+# Usando dataset existente├── flink/                      # Apache Flink 1.18.1
+
+python examples/pyflink_nyc_taxi_csv.py --data data/real/nyc_taxi_2023_01_filtered.csv
+
+```│   └── apache-flink-1.18.1/### Análises Implementadas
+
+
+
+### Resultados (com headers)│
+
+
+
+Todos os CSVs incluem cabeçalhos descritivos:├── examples/O pipeline executa 4 análises completas:
+
+
+
+```csv│   ├── pyflink_topn.py        # Exemplo Top-N
+
+# top_routes.csv
+
+pickup_location,dropoff_location,trip_count│   └── pyflink_nyc_taxi_csv.py # Pipeline Big Data1. **Top 10 Rotas Mais Populares**
+
+237,236,1503
+
+264,264,1295│   - Agrega viagens por pickup/dropoff location IDs
+
+236,237,1276
+
+...└── data/                              - Identifica os pares de localizações mais frequentes
+
+
+
+# revenue_by_hour.csv    ├── real/   - Output: `data/output/nyc_taxi_analysis/top_routes/`
+
+hour_of_day,total_trips,total_revenue,avg_fare
+
+0,8956,299126.78,23.67    │   └── nyc_taxi_2023_01_filtered.csv
+
+6,4819,163953.38,25.21
+
+18,19567,560234.12,28.64    └── output/2. **Receita por Hora do Dia**
+
+...
+
+        └── nyc_taxi_analysis/   - Agrega receita total por hora (0-23)
+
+# trips_by_distance.csv
+
+distance_range,trip_count,avg_fare,avg_duration_min            ├── top_routes/   - Calcula média de tarifa por hora
+
+0-1 miles,43686,7.60,1.37
+
+1-3 miles,111306,12.18,3.55            ├── revenue_by_hour/   - Útil para entender padrões de demanda
+
+10+ miles,29770,65.52,33.00
+
+...            └── trips_by_distance/   - Output: `data/output/nyc_taxi_analysis/revenue_by_hour/`
 
 ```
 
-**Opção 1: Script Completo (Recomendado)**
+```
 
 ## 📊 Exemplo Simples: Top-N
 
+3. **Distância Média por Tipo de Pagamento**
+
 ```bash
 
-```bashchmod +x run_pipeline.sh
+python examples/pyflink_topn.py \## 🚕 Pipeline Big Data: NYC Taxi   - Agrupa por payment_type (1=Cartão, 2=Dinheiro, etc.)
 
-python examples/pyflink_topn.py \./run_pipeline.sh
+    --input data/sample_transactions.csv \
 
-    --input data/sample_transactions.csv \```
+    --top 5   - Compara distância e valor médio por tipo
 
-    --top 5
+```
 
-```O script `run_pipeline.sh` faz tudo automaticamente:
+**Dataset:** NYC Yellow Taxi Trip Records (Janeiro 2023)   - Output: `data/output/nyc_taxi_analysis/distance_by_payment/`
+
+## 🔧 Como Funciona
+
+- **Registros:** ~245,000 viagens
+
+### Arquitetura
+
+- **Tamanho:** ~50MB CSV4. **Análise de Gorjetas**
+
+```
+
+[CSV Dataset]- **Fonte:** [NYC TLC Open Data](https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page)   - Segmenta viagens por faixa de valor (0-10, 10-20, 20-30, 30-50, 50+)
+
+      ↓
+
+[PyFlink Table API]   - Calcula gorjeta média e percentual por faixa
+
+      ↓
+
+[SQL Transformações]### Análises Implementadas   - Apenas pagamentos com cartão (dinheiro não registra gorjeta)
+
+  - GROUP BY
+
+  - Agregações   - Output: `data/output/nyc_taxi_analysis/tip_analysis/`
+
+  - ORDER BY + LIMIT
+
+      ↓#### 1️⃣ Top 10 Rotas Mais Populares
+
+[CSV Output com Headers]
+
+```Identifica as 10 combinações pickup/dropoff location mais frequentes.### Como Funciona (Arquitetura)
+
+
+
+### Tecnologias
+
+
+
+- **Apache Flink 1.18.1** - Motor distribuído#### 2️⃣ Receita por Hora do Dia```
+
+- **PyFlink** - Python API (Table API + SQL)
+
+- **CSV Connector** - Leitura/escrita filesystemAgrega receita total e média por hora (0-23h).[Dataset Parquet]
+
+
+
+## 🛠️ Troubleshooting      ↓
+
+
+
+### Java not found#### 3️⃣ Distribuição por Distância[PyFlink Table API - Source]
+
+```bash
+
+java -versionAgrupa viagens por faixas: 0-1mi, 1-3mi, 3-5mi, 5-10mi, 10+mi.      ↓
+
+export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+
+```[SQL Queries - Transformações]
+
+
+
+### ModuleNotFoundError: pyflink### Executar  - GROUP BY
+
+```bash
+
+source venv_py310/bin/activate  - Agregações (COUNT, SUM, AVG)
+
+pip install apache-flink==1.18.1
+
+``````bash  - Window Functions (HOUR)
+
+
+
+### Cluster não inicia# Com download automático  - Filtros e CASE statements
+
+```bash
+
+tail -f flink/apache-flink-1.18.1/log/*.logpython examples/pyflink_nyc_taxi_csv.py --download      ↓
+
+./stop-flink.sh && ./start-flink.sh
+
+```[Filesystem Sink - CSV Output]
+
+
+
+### Resultados sem headers# Usando dataset existente      ↓
+
+Os CSVs agora incluem headers automaticamente. Se não aparecerem:
+
+```bashpython examples/pyflink_nyc_taxi_csv.py --data data/real/nyc_taxi_2023_01_filtered.csv[Resultados em data/output/]
+
+# Limpar resultados anteriores
+
+rm -rf data/output/nyc_taxi_analysis/*``````
+
+
+
+# Executar novamente
+
+python examples/pyflink_nyc_taxi_csv.py --data data/real/nyc_taxi_2023_01_filtered.csv
+
+```### Resultados**Tecnologias utilizadas:**
+
+
+
+## 📚 Documentação- PyFlink Table API (abstração SQL sobre DataStream)
+
+
+
+- [Apache Flink](https://flink.apache.org/)```- Parquet Reader (formato columnar eficiente)
+
+- [PyFlink Docs](https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/python/)
+
+- [Table API](https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/table/)data/output/nyc_taxi_analysis/- Batch Processing Mode (para dados históricos)
+
+
+
+## 🎯 Próximos Passos├── top_routes/part-*.csv- CSV Writer (resultados legíveis)
+
+
+
+1. Adicionar análise de gorjetas├── revenue_by_hour/part-*.csv
+
+2. Implementar streaming em tempo real
+
+3. Deploy em cluster distribuído└── trips_by_distance/part-*.csv### Execução Automatizada
+
+4. Integração com Kafka
+
+```
+
+## 📝 Changelog
+
+**Opção 1: Script Completo (Recomendado)**
+
+### v1.1.0 (2025-10-14)
+
+- ✨ Adicionados headers descritivos em todos os CSVs de resultado## 📊 Exemplo Simples: Top-N
+
+- 🧹 Limpeza de arquivos temporários e desnecessários
+
+- 📝 Documentação melhorada com exemplos de saída```bash
+
+
+
+### v1.0.0 (2025-10-14)```bashchmod +x run_pipeline.sh
+
+- 🎉 Release inicial
+
+- ✅ Pipeline Big Data com NYC Taxi datasetpython examples/pyflink_topn.py \./run_pipeline.sh
+
+- ✅ 3 análises completas com resultados
+
+- ✅ Scripts de automação    --input data/sample_transactions.csv \```
+
+
+
+---    --top 5
+
+
+
+**Desenvolvido com** ⚡ Apache Flink + 🐍 PyFlink```O script `run_pipeline.sh` faz tudo automaticamente:
+
 
 - ✓ Ativa ambiente Python (pyenv + venv)
 
